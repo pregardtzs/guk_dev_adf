@@ -1,0 +1,35 @@
+{
+	"name": "zip_folder",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "vehicle_service",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"file_name": {
+				"type": "String"
+			}
+		},
+		"type": "AzureBlob",
+		"typeProperties": {
+			"format": {
+				"type": "TextFormat",
+				"columnDelimiter": ",",
+				"rowDelimiter": "",
+				"nullValue": "\\N",
+				"treatEmptyAsNull": true,
+				"skipLineCount": 0,
+				"firstRowAsHeader": false
+			},
+			"compression": {
+				"type": "ZipDeflate"
+			},
+			"fileName": {
+				"value": "@dataset().file_name",
+				"type": "Expression"
+			},
+			"folderPath": "poc-asadl-hdi-2018-07-17t08-43-04-268z/vehicle/zip"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

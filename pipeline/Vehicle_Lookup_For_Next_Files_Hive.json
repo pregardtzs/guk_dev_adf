@@ -1,0 +1,171 @@
+{
+	"name": "Vehicle_Lookup_For_Next_Files_Hive",
+	"properties": {
+		"activities": [
+			{
+				"name": "Lookup_Last_File",
+				"type": "Lookup",
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false
+				},
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource",
+						"query": "select available_date as available_date from vehicle.process_log where process_date is not null order by available_date desc"
+					},
+					"dataset": {
+						"referenceName": "Vehicle_Log_files",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "Lookup_Next_File",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "Lookup_Last_File",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false
+				},
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource",
+						"query": {
+							"value": "select file_name, available_date, current_timestamp() as process_date from vehicle.source_files  where available_date > TO_DATE('@{if(not(contains(activity('Lookup_Last_File').output, 'firstRow')),'2000-01-01',activity('Lookup_Last_File').output.firstRow.available_date)}') order by available_date asc",
+							"type": "Expression"
+						}
+					},
+					"dataset": {
+						"referenceName": "Vehicle_Log_files",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "Execute Vehicle_Prepare_And_Move_File",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Insert_Process_Log_Entry",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Vehicle_Prepare_and_Move_File",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"file_name": {
+							"value": "@{activity('Lookup_Next_File').output.firstRow.file_name}",
+							"type": "Expression"
+						},
+						"available_date": {
+							"value": "@{activity('Lookup_Next_File').output.firstRow.available_date}",
+							"type": "Expression"
+						},
+						"process_date": {
+							"value": "@{activity('Lookup_Next_File').output.firstRow.process_date}",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Error_In_File_Processing",
+				"type": "HDInsightHive",
+				"dependsOn": [
+					{
+						"activity": "Execute Vehicle_Prepare_And_Move_File",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false
+				},
+				"typeProperties": {
+					"scriptPath": "poc-asadl-hdi-2018-07-17t08-43-04-268z/vehicle/script/GuK_write_log.hql",
+					"getDebugInfo": "None",
+					"defines": {
+						"message": {
+							"value": "@concat('Error while processing ', activity('Lookup_Next_File').output.firstRow.file_name)",
+							"type": "Expression"
+						}
+					},
+					"scriptLinkedService": {
+						"referenceName": "vehicle_service",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "hvdb_as_dev_guk_hdls",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Insert_Process_Log_Entry",
+				"type": "HDInsightHive",
+				"dependsOn": [
+					{
+						"activity": "Lookup_Next_File",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false
+				},
+				"typeProperties": {
+					"scriptPath": "poc-asadl-hdi-2018-07-17t08-43-04-268z/vehicle/script/vehicle_write_last_record.hql",
+					"defines": {
+						"FileName": {
+							"value": "@{activity('Lookup_Next_File').output.firstRow.file_name}",
+							"type": "Expression"
+						},
+						"AvailableDate": {
+							"value": "@replace(replace(activity('Lookup_Next_File').output.firstRow.available_date, 'T', ' '), 'Z', '')",
+							"type": "Expression"
+						},
+						"ProcessDate": {
+							"value": "@replace(replace(activity('Lookup_Next_File').output.firstRow.process_date, 'T', ' '), 'Z', '')",
+							"type": "Expression"
+						}
+					},
+					"scriptLinkedService": {
+						"referenceName": "vehicle_service",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "vehicle_linked_service",
+					"type": "LinkedServiceReference"
+				}
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

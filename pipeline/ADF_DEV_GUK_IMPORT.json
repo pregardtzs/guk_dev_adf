@@ -1,0 +1,179 @@
+{
+	"name": "ADF_DEV_GUK_IMPORT",
+	"properties": {
+		"description": "Die GuK Daten einlesen",
+		"activities": [
+			{
+				"name": "1_lkp_last_file",
+				"description": "Ermittle das letzte File welches eingelesen wurde",
+				"type": "Lookup",
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false
+				},
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource",
+						"query": "select AvailableDate as AvailableDate, SuccessFlag as SuccessFlag from hvdb_as_dev_guk.htb_guk_last_record where ProcessDate is not null order by ProcessDate desc"
+					},
+					"dataset": {
+						"referenceName": "hvdb_as_dev_guk_ds",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "1_1_lkp_last_file_gefundet",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "1_lkp_last_file",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"typeProperties": {
+					"expression": {
+						"value": "@contains(activity('1_lkp_last_file').output, 'firstRow')",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
+						{
+							"name": "Insert_File_Not_Found_Log",
+							"type": "HDInsightHive",
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false
+							},
+							"typeProperties": {
+								"scriptPath": "poc-asadl-hdi-2018-07-17t08-43-04-268z/vehicle/script/GuK_write_log.hql",
+								"defines": {
+									"message": "File not found"
+								},
+								"scriptLinkedService": {
+									"referenceName": "hvdb_as_dev_guk_asls",
+									"type": "LinkedServiceReference"
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "hvdb_as_dev_guk_hdls",
+								"type": "LinkedServiceReference"
+							}
+						}
+					],
+					"ifTrueActivities": [
+						{
+							"name": "Insert_File_Found_Log",
+							"type": "HDInsightHive",
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false
+							},
+							"typeProperties": {
+								"scriptPath": "poc-asadl-hdi-2018-07-17t08-43-04-268z/vehicle/script/GuK_write_log.hql",
+								"getDebugInfo": "None",
+								"defines": {
+									"message": {
+										"value": "@concat('The process date of the last processed file is ', activity('1_lkp_last_file').output.firstRow.AvailableDate)",
+										"type": "Expression"
+									}
+								},
+								"scriptLinkedService": {
+									"referenceName": "hvdb_as_dev_guk_asls",
+									"type": "LinkedServiceReference"
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "hvdb_as_dev_guk_hdls",
+								"type": "LinkedServiceReference"
+							}
+						},
+						{
+							"name": "2_lkp_next_file",
+							"description": "Ermittlung des nachsten Files zum einlesen",
+							"type": "Lookup",
+							"dependsOn": [
+								{
+									"activity": "Insert_File_Found_Log",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false
+							},
+							"typeProperties": {
+								"source": {
+									"type": "HiveSource",
+									"query": {
+										"value": "select FileName as FileName, AvailableDate as AvailableDate,\ncurrent_timestamp() as ProcessDate from tb_as_guk_available_files  where AvailableDate > TO_DATE('@{activity('1_lkp_last_file').output.firstRow.AvailableDate}') order by AvailableDate desc ",
+										"type": "Expression"
+									}
+								},
+								"dataset": {
+									"referenceName": "hvdb_as_dev_guk_ds",
+									"type": "DatasetReference"
+								}
+							}
+						},
+						{
+							"name": "2_1_lkp_next_file_gefundet",
+							"type": "HDInsightHive",
+							"dependsOn": [
+								{
+									"activity": "2_lkp_next_file",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false
+							},
+							"typeProperties": {
+								"scriptPath": "poc-asadl-hdi-2018-07-17t08-43-04-268z/vehicle/script/GuK_write_last_record.hql",
+								"defines": {
+									"FileName": {
+										"value": "@activity('2_lkp_next_file').output.firstRow.FileName",
+										"type": "Expression"
+									},
+									"AvailableDate": {
+										"value": "@replace(replace(activity('2_lkp_next_file').output.firstRow.AvailableDate, 'T', ' '), 'Z', '')",
+										"type": "Expression"
+									},
+									"ProcessDate": {
+										"value": "@replace(replace(activity('2_lkp_next_file').output.firstRow.ProcessDate, 'T', ' '), 'Z', '')",
+										"type": "Expression"
+									}
+								},
+								"scriptLinkedService": {
+									"referenceName": "hvdb_as_dev_guk_asls",
+									"type": "LinkedServiceReference"
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "hvdb_as_dev_guk_hdls",
+								"type": "LinkedServiceReference"
+							}
+						}
+					]
+				}
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

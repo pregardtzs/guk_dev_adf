@@ -1,0 +1,84 @@
+{
+	"name": "Vehicle_Lookup_For_Next_Files",
+	"properties": {
+		"activities": [
+			{
+				"name": "Lookup_Next_File",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "Lookup_Last_File",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false
+				},
+				"typeProperties": {
+					"source": {
+						"type": "SqlSource",
+						"sqlReaderQuery": {
+							"value": "select file_name from guk_vehicle.source_files  where available_date > '@{activity('Lookup_Last_File').output.firstRow.available_date}' order by available_date desc ",
+							"type": "Expression"
+						}
+					},
+					"dataset": {
+						"referenceName": "Source_Files",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "Lookup_Last_File",
+				"type": "Lookup",
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false
+				},
+				"typeProperties": {
+					"source": {
+						"type": "SqlSource",
+						"sqlReaderQuery": "select max(available_date) as available_date from guk_vehicle.process_log where process_date is not null"
+					},
+					"dataset": {
+						"referenceName": "Processed_Files",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "Execute Vehicle_Prepare_and_Move_File",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Lookup_Next_File",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Vehicle_Store_Into_Hive",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"file_name": {
+							"value": "@{activity('Lookup_Next_File').output.firstRow.file_name}",
+							"type": "Expression"
+						}
+					}
+				}
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

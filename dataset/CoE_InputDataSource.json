@@ -1,0 +1,26 @@
+{
+	"name": "CoE_InputDataSource",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Tamas_InputSource",
+			"type": "LinkedServiceReference"
+		},
+		"type": "AzureBlob",
+		"typeProperties": {
+			"format": {
+				"type": "TextFormat",
+				"columnDelimiter": ",",
+				"rowDelimiter": "\n",
+				"treatEmptyAsNull": true,
+				"skipLineCount": 0,
+				"firstRowAsHeader": true
+			},
+			"compression": {
+				"type": "GZip"
+			},
+			"fileName": "test.csv*.gz",
+			"folderPath": "guk-test-data/guk"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

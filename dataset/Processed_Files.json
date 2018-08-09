@@ -1,0 +1,14 @@
+{
+	"name": "Processed_Files",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "PoC_ASADL_DB",
+			"type": "LinkedServiceReference"
+		},
+		"type": "AzureSqlTable",
+		"typeProperties": {
+			"tableName": "[guk_vehicle].[process_log]"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

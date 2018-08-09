@@ -1,0 +1,11 @@
+{
+	"name": "Vehicle_Log_files",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "vehicle_linked_service_hive",
+			"type": "LinkedServiceReference"
+		},
+		"type": "HiveObject"
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

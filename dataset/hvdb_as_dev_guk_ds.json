@@ -1,0 +1,12 @@
+{
+	"name": "hvdb_as_dev_guk_ds",
+	"properties": {
+		"description": "dataset for GuK Hive table",
+		"linkedServiceName": {
+			"referenceName": "hvdb_as_dev_guk_ls",
+			"type": "LinkedServiceReference"
+		},
+		"type": "HiveObject"
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

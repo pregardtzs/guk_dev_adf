@@ -1,0 +1,139 @@
+{
+	"name": "Vehicle_Prepare_and_Move_File",
+	"properties": {
+		"description": "Extract compressed file into the /vehicle/input_folder from /vehicle/zip",
+		"activities": [
+			{
+				"name": "UncompressFile",
+				"description": "UncompressZipFileForProcess",
+				"type": "Copy",
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false
+				},
+				"userProperties": [
+					{
+						"name": "file_name",
+						"value": "@pipeline().parameters.file_name"
+					}
+				],
+				"typeProperties": {
+					"source": {
+						"type": "BlobSource",
+						"recursive": false
+					},
+					"sink": {
+						"type": "BlobSink",
+						"copyBehavior": "FlattenHierarchy"
+					},
+					"enableStaging": false,
+					"dataIntegrationUnits": 0
+				},
+				"inputs": [
+					{
+						"referenceName": "zip_folder",
+						"type": "DatasetReference",
+						"parameters": {
+							"file_name": "@pipeline().parameters.file_name"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "zip_target",
+						"type": "DatasetReference",
+						"parameters": {
+							"file_name": "@pipeline().parameters.file_name"
+						}
+					}
+				]
+			},
+			{
+				"name": "Execute Vehicle_Store_Into_Hive",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "UncompressFile",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Vehicle_Store_Into_Hive",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"file_name": {
+							"value": "@pipeline().parameters.file_name",
+							"type": "Expression"
+						},
+						"available_date": {
+							"value": "@pipeline().parameters.available_date",
+							"type": "Expression"
+						},
+						"process_date": {
+							"value": "@pipeline().parameters.process_date",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Error_while_decompression",
+				"type": "HDInsightHive",
+				"dependsOn": [
+					{
+						"activity": "UncompressFile",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false
+				},
+				"typeProperties": {
+					"scriptPath": "poc-asadl-hdi-2018-07-17t08-43-04-268z/vehicle/script/GuK_write_log.hql",
+					"getDebugInfo": "None",
+					"defines": {
+						"message": {
+							"value": "@concat('Error while uncompress ', pipeline().parameters.file_name)",
+							"type": "Expression"
+						}
+					},
+					"scriptLinkedService": {
+						"referenceName": "vehicle_service",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "hvdb_as_dev_guk_hdls",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"parameters": {
+			"file_name": {
+				"type": "String",
+				"defaultValue": "@pipeline().parameters.file_name"
+			},
+			"available_date": {
+				"type": "String",
+				"defaultValue": "@pipeline().parameters.available_date"
+			},
+			"process_date": {
+				"type": "String",
+				"defaultValue": "@pipeline().parameters.process_date"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

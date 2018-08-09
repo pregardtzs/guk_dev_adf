@@ -1,0 +1,128 @@
+{
+	"name": "Vehicle_Store_Into_Hive",
+	"properties": {
+		"description": "Load vehicle datas to external table(hvtb_vehicle_mgn_external), and merge into the hive table(hvtb_vehicle_mgn)",
+		"activities": [
+			{
+				"name": "ProcessVehicleDatas",
+				"description": "Load vehicle datas to external table(hvtb_vehicle_mgn_external), and merge into the hive table(hvtb_vehicle_mgn)",
+				"type": "HDInsightHive",
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false
+				},
+				"typeProperties": {
+					"scriptPath": "poc-asadl-hdi-2018-07-17t08-43-04-268z/vehicle/script/processIncomingVehicleDatas.hql",
+					"defines": {
+						"fileName": {
+							"value": "@concat('/vehicle/input_folder/',replace(pipeline().parameters.file_name, '.zip', '.csv'))",
+							"type": "Expression"
+						}
+					},
+					"scriptLinkedService": {
+						"referenceName": "vehicle_service",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "vehicle_linked_service",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Archive_File",
+				"description": "Move the processed file to /vehicle/archive folder",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Update_Process_Log_Entry",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false
+				},
+				"typeProperties": {
+					"source": {
+						"type": "BlobSource",
+						"recursive": true
+					},
+					"sink": {
+						"type": "BlobSink"
+					},
+					"enableStaging": false,
+					"dataIntegrationUnits": 0
+				},
+				"inputs": [
+					{
+						"referenceName": "SourceFolder",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ArchiveFolder",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Update_Process_Log_Entry",
+				"type": "HDInsightHive",
+				"dependsOn": [
+					{
+						"activity": "ProcessVehicleDatas",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false
+				},
+				"typeProperties": {
+					"scriptPath": "poc-asadl-hdi-2018-07-17t08-43-04-268z/vehicle/script/vehicle_update_last_record.hql",
+					"defines": {
+						"FileName": {
+							"value": "@pipeline().parameters.file_name",
+							"type": "Expression"
+						}
+					},
+					"scriptLinkedService": {
+						"referenceName": "vehicle_service",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "vehicle_linked_service",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"parameters": {
+			"file_name": {
+				"type": "String",
+				"defaultValue": "@pipeline().parameters.file_name"
+			},
+			"available_date": {
+				"type": "String",
+				"defaultValue": "@pipeline().parameters.available_date"
+			},
+			"process_date": {
+				"type": "String",
+				"defaultValue": "@pipeline().parameters.process_date"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

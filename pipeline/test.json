@@ -1,0 +1,28 @@
+{
+	"name": "test",
+	"properties": {
+		"activities": [
+			{
+				"name": "Lookup1",
+				"type": "Lookup",
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false
+				},
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource",
+						"query": "select available_date as available_date from vehicle.process_log where process_date is not null order by available_date desc"
+					},
+					"dataset": {
+						"referenceName": "Vehicle_Log_files",
+						"type": "DatasetReference"
+					}
+				}
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
