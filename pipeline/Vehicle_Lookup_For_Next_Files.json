@@ -1,7 +1,6 @@
 {
 	"name": "Vehicle_Lookup_For_Next_Files",
 	"properties": {
-		"description": "teszt",
 		"activities": [
 			{
 				"name": "Lookup_Next_File",
