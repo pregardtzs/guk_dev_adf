@@ -17,7 +17,7 @@
 				"firstRowAsHeader": false
 			},
 			"fileName": "*",
-			"folderPath": "poc-asadl-hdi-2018-07-17t08-43-04-268z/vehicle/hive2"
+			"folderPath": "poc-asadl-hdi-2018-07-17t08-43-04-268z/vehicle/hive14"
 		}
 	},
 	"type": "Microsoft.DataFactory/factories/datasets"
