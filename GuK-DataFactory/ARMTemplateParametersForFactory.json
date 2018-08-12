@@ -1,1 +1,90 @@
-{}
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "GuK-DataFactory"
+		},
+		"AzureBatch_accessKey": {
+			"value": ""
+		},
+		"AzureStorage1_connectionString": {
+			"value": ""
+		},
+		"AzureStorage2_connectionString": {
+			"value": ""
+		},
+		"GuK_TargetBlobStorage_connectionString": {
+			"value": ""
+		},
+		"PoC_ASADL_DB_connectionString": {
+			"value": ""
+		},
+		"Tamas_InputSource_connectionString": {
+			"value": ""
+		},
+		"hvdb_as_dev_guk_asls_connectionString": {
+			"value": ""
+		},
+		"hvdb_as_dev_guk_hdls_password": {
+			"value": ""
+		},
+		"hvdb_as_dev_guk_ls_password": {
+			"value": ""
+		},
+		"vehicle_linked_service_password": {
+			"value": ""
+		},
+		"vehicle_linked_service_hive_password": {
+			"value": ""
+		},
+		"vehicle_service_connectionString": {
+			"value": ""
+		},
+		"ArchiveFolder_properties_typeProperties_fileName": {
+			"value": ""
+		},
+		"ArchiveFolder_properties_typeProperties_folderPath": {
+			"value": "poc-asadl-hdi-2018-07-17t08-43-04-268z/vehicle/archive"
+		},
+		"CoE_InputDataSource_properties_typeProperties_fileName": {
+			"value": "test.csv*.gz"
+		},
+		"CoE_InputDataSource_properties_typeProperties_folderPath": {
+			"value": "guk-test-data/guk"
+		},
+		"SourceFolder_properties_typeProperties_fileName": {
+			"value": "*"
+		},
+		"SourceFolder_properties_typeProperties_folderPath": {
+			"value": "poc-asadl-hdi-2018-07-17t08-43-04-268z/vehicle/hive"
+		},
+		"zip_folder_properties_typeProperties_fileName": {
+			"value": "@dataset().file_name"
+		},
+		"zip_folder_properties_typeProperties_folderPath": {
+			"value": "poc-asadl-hdi-2018-07-17t08-43-04-268z/vehicle/zip"
+		},
+		"zip_target_properties_typeProperties_fileName": {
+			"value": "@replace(dataset().file_name, '.zip', '.csv')"
+		},
+		"zip_target_properties_typeProperties_folderPath": {
+			"value": "poc-asadl-hdi-2018-07-17t08-43-04-268z/vehicle/input_folder"
+		},
+		"AzureBatch_properties_typeProperties_accountName": {
+			"value": "asadlbatch"
+		},
+		"hvdb_as_dev_guk_hdls_properties_typeProperties_userName": {
+			"value": "admin"
+		},
+		"hvdb_as_dev_guk_ls_properties_typeProperties_username": {
+			"value": "admin"
+		},
+		"vehicle_linked_service_properties_typeProperties_userName": {
+			"value": "admin"
+		},
+		"vehicle_linked_service_hive_properties_typeProperties_username": {
+			"value": "admin"
+		}
+	}
+}

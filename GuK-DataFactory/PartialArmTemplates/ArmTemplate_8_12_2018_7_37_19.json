@@ -6,114 +6,6 @@
 			"type": "string",
 			"metadata": "Data Factory Name",
 			"defaultValue": "GuK-DataFactory"
-		},
-		"AzureBatch_accessKey": {
-			"type": "secureString",
-			"metadata": "Secure string for 'accessKey' of 'AzureBatch'"
-		},
-		"AzureStorage1_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'AzureStorage1'"
-		},
-		"AzureStorage2_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'AzureStorage2'"
-		},
-		"GuK_TargetBlobStorage_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'GuK_TargetBlobStorage'"
-		},
-		"PoC_ASADL_DB_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'PoC_ASADL_DB'"
-		},
-		"Tamas_InputSource_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'Tamas_InputSource'"
-		},
-		"hvdb_as_dev_guk_asls_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'hvdb_as_dev_guk_asls'"
-		},
-		"hvdb_as_dev_guk_hdls_password": {
-			"type": "secureString",
-			"metadata": "Secure string for 'password' of 'hvdb_as_dev_guk_hdls'"
-		},
-		"hvdb_as_dev_guk_ls_password": {
-			"type": "secureString",
-			"metadata": "Secure string for 'password' of 'hvdb_as_dev_guk_ls'"
-		},
-		"vehicle_linked_service_password": {
-			"type": "secureString",
-			"metadata": "Secure string for 'password' of 'vehicle_linked_service'"
-		},
-		"vehicle_linked_service_hive_password": {
-			"type": "secureString",
-			"metadata": "Secure string for 'password' of 'vehicle_linked_service_hive'"
-		},
-		"vehicle_service_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'vehicle_service'"
-		},
-		"ArchiveFolder_properties_typeProperties_fileName": {
-			"type": "string",
-			"defaultValue": ""
-		},
-		"ArchiveFolder_properties_typeProperties_folderPath": {
-			"type": "string",
-			"defaultValue": "poc-asadl-hdi-2018-07-17t08-43-04-268z/vehicle/archive"
-		},
-		"CoE_InputDataSource_properties_typeProperties_fileName": {
-			"type": "string",
-			"defaultValue": "test.csv*.gz"
-		},
-		"CoE_InputDataSource_properties_typeProperties_folderPath": {
-			"type": "string",
-			"defaultValue": "guk-test-data/guk"
-		},
-		"SourceFolder_properties_typeProperties_fileName": {
-			"type": "string",
-			"defaultValue": "*"
-		},
-		"SourceFolder_properties_typeProperties_folderPath": {
-			"type": "string",
-			"defaultValue": "poc-asadl-hdi-2018-07-17t08-43-04-268z/vehicle/hive"
-		},
-		"zip_folder_properties_typeProperties_fileName": {
-			"type": "string",
-			"defaultValue": "@dataset().file_name"
-		},
-		"zip_folder_properties_typeProperties_folderPath": {
-			"type": "string",
-			"defaultValue": "poc-asadl-hdi-2018-07-17t08-43-04-268z/vehicle/zip"
-		},
-		"zip_target_properties_typeProperties_fileName": {
-			"type": "string",
-			"defaultValue": "@replace(dataset().file_name, '.zip', '.csv')"
-		},
-		"zip_target_properties_typeProperties_folderPath": {
-			"type": "string",
-			"defaultValue": "poc-asadl-hdi-2018-07-17t08-43-04-268z/vehicle/input_folder"
-		},
-		"AzureBatch_properties_typeProperties_accountName": {
-			"type": "string",
-			"defaultValue": "asadlbatch"
-		},
-		"hvdb_as_dev_guk_hdls_properties_typeProperties_userName": {
-			"type": "string",
-			"defaultValue": "admin"
-		},
-		"hvdb_as_dev_guk_ls_properties_typeProperties_username": {
-			"type": "string",
-			"defaultValue": "admin"
-		},
-		"vehicle_linked_service_properties_typeProperties_userName": {
-			"type": "string",
-			"defaultValue": "admin"
-		},
-		"vehicle_linked_service_hive_properties_typeProperties_username": {
-			"type": "string",
-			"defaultValue": "admin"
 		}
 	},
 	"variables": {
@@ -131,14 +23,12 @@
 						"name": "1_lkp_last_file",
 						"description": "Ermittle das letzte File welches eingelesen wurde",
 						"type": "Lookup",
-						"dependsOn": [],
 						"policy": {
 							"timeout": "7.00:00:00",
 							"retry": 0,
 							"retryIntervalInSeconds": 30,
 							"secureOutput": false
 						},
-						"userProperties": [],
 						"typeProperties": {
 							"source": {
 								"type": "HiveSource",
@@ -146,8 +36,7 @@
 							},
 							"dataset": {
 								"referenceName": "hvdb_as_dev_guk_ds",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							}
 						}
 					},
@@ -162,7 +51,6 @@
 								]
 							}
 						],
-						"userProperties": [],
 						"typeProperties": {
 							"expression": {
 								"value": "@contains(activity('1_lkp_last_file').output, 'firstRow')",
@@ -172,17 +60,14 @@
 								{
 									"name": "Insert_File_Not_Found_Log",
 									"type": "HDInsightHive",
-									"dependsOn": [],
 									"policy": {
 										"timeout": "7.00:00:00",
 										"retry": 0,
 										"retryIntervalInSeconds": 30,
 										"secureOutput": false
 									},
-									"userProperties": [],
 									"typeProperties": {
 										"scriptPath": "poc-asadl-hdi-2018-07-17t08-43-04-268z/vehicle/script/GuK_write_log.hql",
-										"arguments": [],
 										"defines": {
 											"message": "File not found"
 										},
@@ -201,17 +86,14 @@
 								{
 									"name": "Insert_File_Found_Log",
 									"type": "HDInsightHive",
-									"dependsOn": [],
 									"policy": {
 										"timeout": "7.00:00:00",
 										"retry": 0,
 										"retryIntervalInSeconds": 30,
 										"secureOutput": false
 									},
-									"userProperties": [],
 									"typeProperties": {
 										"scriptPath": "poc-asadl-hdi-2018-07-17t08-43-04-268z/vehicle/script/GuK_write_log.hql",
-										"arguments": [],
 										"getDebugInfo": "None",
 										"defines": {
 											"message": {
@@ -247,7 +129,6 @@
 										"retryIntervalInSeconds": 30,
 										"secureOutput": false
 									},
-									"userProperties": [],
 									"typeProperties": {
 										"source": {
 											"type": "HiveSource",
@@ -258,8 +139,7 @@
 										},
 										"dataset": {
 											"referenceName": "hvdb_as_dev_guk_ds",
-											"type": "DatasetReference",
-											"parameters": {}
+											"type": "DatasetReference"
 										}
 									}
 								},
@@ -280,10 +160,8 @@
 										"retryIntervalInSeconds": 30,
 										"secureOutput": false
 									},
-									"userProperties": [],
 									"typeProperties": {
 										"scriptPath": "poc-asadl-hdi-2018-07-17t08-43-04-268z/vehicle/script/GuK_write_last_record.hql",
-										"arguments": [],
 										"defines": {
 											"FileName": {
 												"value": "@activity('2_lkp_next_file').output.firstRow.FileName",
@@ -311,13 +189,10 @@
 							]
 						}
 					}
-				],
-				"annotations": []
+				]
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/hvdb_as_dev_guk_ds')]",
-				"[concat(variables('factoryId'), '/linkedServices/hvdb_as_dev_guk_asls')]",
-				"[concat(variables('factoryId'), '/linkedServices/hvdb_as_dev_guk_hdls')]"
+				"[concat(variables('factoryId'), '/datasets/hvdb_as_dev_guk_ds')]"
 			]
 		},
 		{
@@ -343,7 +218,6 @@
 							"retryIntervalInSeconds": 30,
 							"secureOutput": false
 						},
-						"userProperties": [],
 						"typeProperties": {
 							"source": {
 								"type": "SqlSource",
@@ -354,22 +228,19 @@
 							},
 							"dataset": {
 								"referenceName": "Source_Files",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							}
 						}
 					},
 					{
 						"name": "Lookup_Last_File",
 						"type": "Lookup",
-						"dependsOn": [],
 						"policy": {
 							"timeout": "7.00:00:00",
 							"retry": 0,
 							"retryIntervalInSeconds": 30,
 							"secureOutput": false
 						},
-						"userProperties": [],
 						"typeProperties": {
 							"source": {
 								"type": "SqlSource",
@@ -377,8 +248,7 @@
 							},
 							"dataset": {
 								"referenceName": "Processed_Files",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							}
 						}
 					},
@@ -393,7 +263,6 @@
 								]
 							}
 						],
-						"userProperties": [],
 						"typeProperties": {
 							"pipeline": {
 								"referenceName": "Vehicle_Store_Into_Hive",
@@ -408,8 +277,7 @@
 							}
 						}
 					}
-				],
-				"annotations": []
+				]
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/Source_Files')]",
@@ -426,14 +294,12 @@
 					{
 						"name": "Lookup_Last_File",
 						"type": "Lookup",
-						"dependsOn": [],
 						"policy": {
 							"timeout": "7.00:00:00",
 							"retry": 0,
 							"retryIntervalInSeconds": 30,
 							"secureOutput": false
 						},
-						"userProperties": [],
 						"typeProperties": {
 							"source": {
 								"type": "HiveSource",
@@ -441,8 +307,7 @@
 							},
 							"dataset": {
 								"referenceName": "Vehicle_Log_files",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							}
 						}
 					},
@@ -463,7 +328,6 @@
 							"retryIntervalInSeconds": 30,
 							"secureOutput": false
 						},
-						"userProperties": [],
 						"typeProperties": {
 							"source": {
 								"type": "HiveSource",
@@ -474,8 +338,7 @@
 							},
 							"dataset": {
 								"referenceName": "Vehicle_Log_files",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							}
 						}
 					},
@@ -490,7 +353,6 @@
 								]
 							}
 						],
-						"userProperties": [],
 						"typeProperties": {
 							"pipeline": {
 								"referenceName": "Vehicle_Prepare_and_Move_File",
@@ -530,10 +392,8 @@
 							"retryIntervalInSeconds": 30,
 							"secureOutput": false
 						},
-						"userProperties": [],
 						"typeProperties": {
 							"scriptPath": "poc-asadl-hdi-2018-07-17t08-43-04-268z/vehicle/script/GuK_write_log.hql",
-							"arguments": [],
 							"getDebugInfo": "None",
 							"defines": {
 								"message": {
@@ -568,10 +428,8 @@
 							"retryIntervalInSeconds": 30,
 							"secureOutput": false
 						},
-						"userProperties": [],
 						"typeProperties": {
 							"scriptPath": "poc-asadl-hdi-2018-07-17t08-43-04-268z/vehicle/script/vehicle_write_last_record.hql",
-							"arguments": [],
 							"defines": {
 								"FileName": {
 									"value": "@{activity('Lookup_Next_File').output.firstRow.file_name}",
@@ -596,15 +454,11 @@
 							"type": "LinkedServiceReference"
 						}
 					}
-				],
-				"annotations": []
+				]
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/Vehicle_Log_files')]",
-				"[concat(variables('factoryId'), '/pipelines/Vehicle_Prepare_and_Move_File')]",
-				"[concat(variables('factoryId'), '/linkedServices/vehicle_service')]",
-				"[concat(variables('factoryId'), '/linkedServices/hvdb_as_dev_guk_hdls')]",
-				"[concat(variables('factoryId'), '/linkedServices/vehicle_linked_service')]"
+				"[concat(variables('factoryId'), '/pipelines/Vehicle_Prepare_and_Move_File')]"
 			]
 		},
 		{
@@ -618,7 +472,6 @@
 						"name": "UncompressFile",
 						"description": "UncompressZipFileForProcess",
 						"type": "Copy",
-						"dependsOn": [],
 						"policy": {
 							"timeout": "7.00:00:00",
 							"retry": 0,
@@ -673,7 +526,6 @@
 								]
 							}
 						],
-						"userProperties": [],
 						"typeProperties": {
 							"pipeline": {
 								"referenceName": "Vehicle_Store_Into_Hive",
@@ -713,10 +565,8 @@
 							"retryIntervalInSeconds": 30,
 							"secureOutput": false
 						},
-						"userProperties": [],
 						"typeProperties": {
 							"scriptPath": "poc-asadl-hdi-2018-07-17t08-43-04-268z/vehicle/script/GuK_write_log.hql",
-							"arguments": [],
 							"getDebugInfo": "None",
 							"defines": {
 								"message": {
@@ -748,15 +598,12 @@
 						"type": "String",
 						"defaultValue": "@pipeline().parameters.process_date"
 					}
-				},
-				"annotations": []
+				}
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/zip_folder')]",
 				"[concat(variables('factoryId'), '/datasets/zip_target')]",
-				"[concat(variables('factoryId'), '/pipelines/Vehicle_Store_Into_Hive')]",
-				"[concat(variables('factoryId'), '/linkedServices/vehicle_service')]",
-				"[concat(variables('factoryId'), '/linkedServices/hvdb_as_dev_guk_hdls')]"
+				"[concat(variables('factoryId'), '/pipelines/Vehicle_Store_Into_Hive')]"
 			]
 		},
 		{
@@ -770,17 +617,14 @@
 						"name": "ProcessVehicleDatas",
 						"description": "Load vehicle datas to external table(hvtb_vehicle_mgn_external), and merge into the hive table(hvtb_vehicle_mgn)",
 						"type": "HDInsightHive",
-						"dependsOn": [],
 						"policy": {
 							"timeout": "7.00:00:00",
 							"retry": 0,
 							"retryIntervalInSeconds": 30,
 							"secureOutput": false
 						},
-						"userProperties": [],
 						"typeProperties": {
 							"scriptPath": "poc-asadl-hdi-2018-07-17t08-43-04-268z/vehicle/script/processIncomingVehicleDatas.hql",
-							"arguments": [],
 							"defines": {
 								"fileName": {
 									"value": "@concat('/vehicle/input_folder/',replace(pipeline().parameters.file_name, '.zip', '.csv'))",
@@ -815,7 +659,6 @@
 							"retryIntervalInSeconds": 30,
 							"secureOutput": false
 						},
-						"userProperties": [],
 						"typeProperties": {
 							"source": {
 								"type": "BlobSource",
@@ -830,15 +673,13 @@
 						"inputs": [
 							{
 								"referenceName": "SourceFolder",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							}
 						],
 						"outputs": [
 							{
 								"referenceName": "ArchiveFolder",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							}
 						]
 					},
@@ -859,10 +700,8 @@
 							"retryIntervalInSeconds": 30,
 							"secureOutput": false
 						},
-						"userProperties": [],
 						"typeProperties": {
 							"scriptPath": "poc-asadl-hdi-2018-07-17t08-43-04-268z/vehicle/script/vehicle_update_last_record.hql",
-							"arguments": [],
 							"defines": {
 								"FileName": {
 									"value": "@pipeline().parameters.file_name",
@@ -893,12 +732,9 @@
 						"type": "String",
 						"defaultValue": "@pipeline().parameters.process_date"
 					}
-				},
-				"annotations": []
+				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/vehicle_service')]",
-				"[concat(variables('factoryId'), '/linkedServices/vehicle_linked_service')]",
 				"[concat(variables('factoryId'), '/datasets/SourceFolder')]",
 				"[concat(variables('factoryId'), '/datasets/ArchiveFolder')]"
 			]
@@ -912,14 +748,12 @@
 					{
 						"name": "TestInsrtInLookup",
 						"type": "Lookup",
-						"dependsOn": [],
 						"policy": {
 							"timeout": "7.00:00:00",
 							"retry": 0,
 							"retryIntervalInSeconds": 30,
 							"secureOutput": false
 						},
-						"userProperties": [],
 						"typeProperties": {
 							"source": {
 								"type": "HiveSource",
@@ -927,14 +761,12 @@
 							},
 							"dataset": {
 								"referenceName": "Vehicle_Log_files",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							},
 							"firstRowOnly": false
 						}
 					}
-				],
-				"annotations": []
+				]
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/Vehicle_Log_files')]"
@@ -947,10 +779,8 @@
 			"properties": {
 				"linkedServiceName": {
 					"referenceName": "AzureStorage1",
-					"type": "LinkedServiceReference",
-					"parameters": {}
+					"type": "LinkedServiceReference"
 				},
-				"annotations": [],
 				"type": "AzureBlob",
 				"typeProperties": {
 					"format": {
@@ -962,13 +792,10 @@
 						"skipLineCount": 0,
 						"firstRowAsHeader": false
 					},
-					"fileName": "[parameters('ArchiveFolder_properties_typeProperties_fileName')]",
-					"folderPath": "[parameters('ArchiveFolder_properties_typeProperties_folderPath')]"
+					"fileName": "",
+					"folderPath": "poc-asadl-hdi-2018-07-17t08-43-04-268z/vehicle/archive"
 				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureStorage1')]"
-			]
+			}
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/CoE_InputDataSource')]",
@@ -977,10 +804,8 @@
 			"properties": {
 				"linkedServiceName": {
 					"referenceName": "Tamas_InputSource",
-					"type": "LinkedServiceReference",
-					"parameters": {}
+					"type": "LinkedServiceReference"
 				},
-				"annotations": [],
 				"type": "AzureBlob",
 				"typeProperties": {
 					"format": {
@@ -994,13 +819,10 @@
 					"compression": {
 						"type": "GZip"
 					},
-					"fileName": "[parameters('CoE_InputDataSource_properties_typeProperties_fileName')]",
-					"folderPath": "[parameters('CoE_InputDataSource_properties_typeProperties_folderPath')]"
+					"fileName": "test.csv*.gz",
+					"folderPath": "guk-test-data/guk"
 				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/Tamas_InputSource')]"
-			]
+			}
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/Processed_Files')]",
@@ -1009,18 +831,13 @@
 			"properties": {
 				"linkedServiceName": {
 					"referenceName": "PoC_ASADL_DB",
-					"type": "LinkedServiceReference",
-					"parameters": {}
+					"type": "LinkedServiceReference"
 				},
-				"annotations": [],
 				"type": "AzureSqlTable",
 				"typeProperties": {
 					"tableName": "[concat('[', 'guk_vehicle].[process_log]')]"
 				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/PoC_ASADL_DB')]"
-			]
+			}
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/SourceFolder')]",
@@ -1029,10 +846,8 @@
 			"properties": {
 				"linkedServiceName": {
 					"referenceName": "AzureStorage1",
-					"type": "LinkedServiceReference",
-					"parameters": {}
+					"type": "LinkedServiceReference"
 				},
-				"annotations": [],
 				"type": "AzureBlob",
 				"typeProperties": {
 					"format": {
@@ -1044,13 +859,10 @@
 						"skipLineCount": 0,
 						"firstRowAsHeader": false
 					},
-					"fileName": "[parameters('SourceFolder_properties_typeProperties_fileName')]",
-					"folderPath": "[parameters('SourceFolder_properties_typeProperties_folderPath')]"
+					"fileName": "*",
+					"folderPath": "poc-asadl-hdi-2018-07-17t08-43-04-268z/vehicle/hive"
 				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureStorage1')]"
-			]
+			}
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/Source_Files')]",
@@ -1059,18 +871,13 @@
 			"properties": {
 				"linkedServiceName": {
 					"referenceName": "PoC_ASADL_DB",
-					"type": "LinkedServiceReference",
-					"parameters": {}
+					"type": "LinkedServiceReference"
 				},
-				"annotations": [],
 				"type": "AzureSqlTable",
 				"typeProperties": {
 					"tableName": "[concat('[', 'guk_vehicle].[source_files]')]"
 				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/PoC_ASADL_DB')]"
-			]
+			}
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/Vehicle_Log_files')]",
@@ -1079,15 +886,10 @@
 			"properties": {
 				"linkedServiceName": {
 					"referenceName": "vehicle_linked_service_hive",
-					"type": "LinkedServiceReference",
-					"parameters": {}
+					"type": "LinkedServiceReference"
 				},
-				"annotations": [],
 				"type": "HiveObject"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/vehicle_linked_service_hive')]"
-			]
+			}
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/hvdb_as_dev_guk_ds')]",
@@ -1097,15 +899,10 @@
 				"description": "dataset for GuK Hive table",
 				"linkedServiceName": {
 					"referenceName": "hvdb_as_dev_guk_ls",
-					"type": "LinkedServiceReference",
-					"parameters": {}
+					"type": "LinkedServiceReference"
 				},
-				"annotations": [],
 				"type": "HiveObject"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/hvdb_as_dev_guk_ls')]"
-			]
+			}
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/zip_folder')]",
@@ -1114,15 +911,13 @@
 			"properties": {
 				"linkedServiceName": {
 					"referenceName": "vehicle_service",
-					"type": "LinkedServiceReference",
-					"parameters": {}
+					"type": "LinkedServiceReference"
 				},
 				"parameters": {
 					"file_name": {
 						"type": "String"
 					}
 				},
-				"annotations": [],
 				"type": "AzureBlob",
 				"typeProperties": {
 					"format": {
@@ -1138,15 +933,12 @@
 						"type": "ZipDeflate"
 					},
 					"fileName": {
-						"value": "[parameters('zip_folder_properties_typeProperties_fileName')]",
+						"value": "@dataset().file_name",
 						"type": "Expression"
 					},
-					"folderPath": "[parameters('zip_folder_properties_typeProperties_folderPath')]"
+					"folderPath": "poc-asadl-hdi-2018-07-17t08-43-04-268z/vehicle/zip"
 				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/vehicle_service')]"
-			]
+			}
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/zip_target')]",
@@ -1155,15 +947,13 @@
 			"properties": {
 				"linkedServiceName": {
 					"referenceName": "vehicle_service",
-					"type": "LinkedServiceReference",
-					"parameters": {}
+					"type": "LinkedServiceReference"
 				},
 				"parameters": {
 					"file_name": {
 						"type": "String"
 					}
 				},
-				"annotations": [],
 				"type": "AzureBlob",
 				"typeProperties": {
 					"format": {
@@ -1176,228 +966,12 @@
 						"firstRowAsHeader": false
 					},
 					"fileName": {
-						"value": "[parameters('zip_target_properties_typeProperties_fileName')]",
+						"value": "@replace(dataset().file_name, '.zip', '.csv')",
 						"type": "Expression"
 					},
-					"folderPath": "[parameters('zip_target_properties_typeProperties_folderPath')]"
+					"folderPath": "poc-asadl-hdi-2018-07-17t08-43-04-268z/vehicle/input_folder"
 				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/vehicle_service')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/AzureBatch')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureBatch",
-				"typeProperties": {
-					"accountName": "[parameters('AzureBatch_properties_typeProperties_accountName')]",
-					"accessKey": {
-						"type": "SecureString",
-						"value": "[parameters('AzureBatch_accessKey')]"
-					},
-					"batchUri": "https://asadlbatch.westeurope.batch.azure.com",
-					"poolName": "asadl-batch-pool",
-					"linkedServiceName": {
-						"referenceName": "vehicle_service",
-						"type": "LinkedServiceReference"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/vehicle_service')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/AzureStorage1')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureStorage",
-				"typeProperties": {
-					"connectionString": "[parameters('AzureStorage1_connectionString')]"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/AzureStorage2')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureStorage",
-				"typeProperties": {
-					"connectionString": "[parameters('AzureStorage2_connectionString')]"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/GuK_TargetBlobStorage')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureStorage",
-				"typeProperties": {
-					"connectionString": "[parameters('GuK_TargetBlobStorage_connectionString')]"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/PoC_ASADL_DB')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureSqlDatabase",
-				"typeProperties": {
-					"connectionString": "[parameters('PoC_ASADL_DB_connectionString')]"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Tamas_InputSource')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureStorage",
-				"typeProperties": {
-					"connectionString": "[parameters('Tamas_InputSource_connectionString')]"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/hvdb_as_dev_guk_asls')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "Azure Storage Linked Service fC<r GuK",
-				"annotations": [],
-				"type": "AzureStorage",
-				"typeProperties": {
-					"connectionString": "[parameters('hvdb_as_dev_guk_asls_connectionString')]"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/hvdb_as_dev_guk_hdls')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "HDInside Linked Service fC<r GuK",
-				"annotations": [],
-				"type": "HDInsight",
-				"typeProperties": {
-					"clusterUri": "https://poc-asadl-hdi.azurehdinsight.net",
-					"userName": "[parameters('hvdb_as_dev_guk_hdls_properties_typeProperties_userName')]",
-					"password": {
-						"type": "SecureString",
-						"value": "[parameters('hvdb_as_dev_guk_hdls_password')]"
-					},
-					"linkedServiceName": {
-						"referenceName": "hvdb_as_dev_guk_asls",
-						"type": "LinkedServiceReference"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/hvdb_as_dev_guk_asls')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/hvdb_as_dev_guk_ls')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "Linked service for GuK Hive",
-				"annotations": [],
-				"type": "Hive",
-				"typeProperties": {
-					"host": "poc-asadl-hdi.azurehdinsight.net",
-					"port": 443,
-					"authenticationType": "WindowsAzureHDInsightService",
-					"serviceDiscoveryMode": false,
-					"useNativeQuery": false,
-					"username": "[parameters('hvdb_as_dev_guk_ls_properties_typeProperties_username')]",
-					"password": {
-						"type": "SecureString",
-						"value": "[parameters('hvdb_as_dev_guk_ls_password')]"
-					},
-					"enableSsl": false
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/vehicle_linked_service')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "HDInsight",
-				"typeProperties": {
-					"clusterUri": "https://poc-asadl-hdi.azurehdinsight.net",
-					"userName": "[parameters('vehicle_linked_service_properties_typeProperties_userName')]",
-					"password": {
-						"type": "SecureString",
-						"value": "[parameters('vehicle_linked_service_password')]"
-					},
-					"linkedServiceName": {
-						"referenceName": "vehicle_service",
-						"type": "LinkedServiceReference"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/vehicle_service')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/vehicle_linked_service_hive')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "Hive",
-				"typeProperties": {
-					"host": "poc-asadl-hdi.azurehdinsight.net",
-					"port": 443,
-					"authenticationType": "WindowsAzureHDInsightService",
-					"serviceDiscoveryMode": false,
-					"useNativeQuery": false,
-					"username": "[parameters('vehicle_linked_service_hive_properties_typeProperties_username')]",
-					"password": {
-						"type": "SecureString",
-						"value": "[parameters('vehicle_linked_service_hive_password')]"
-					},
-					"enableSsl": false
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/vehicle_service')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureStorage",
-				"typeProperties": {
-					"connectionString": "[parameters('vehicle_service_connectionString')]"
-				}
-			},
-			"dependsOn": []
+			}
 		}
 	]
 }
