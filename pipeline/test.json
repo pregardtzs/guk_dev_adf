@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Lookup1",
+				"name": "TestInsrtInLookup",
 				"type": "Lookup",
 				"policy": {
 					"timeout": "7.00:00:00",
@@ -14,12 +14,13 @@
 				"typeProperties": {
 					"source": {
 						"type": "HiveSource",
-						"query": "select available_date as available_date from vehicle.process_log where process_date is not null order by available_date desc"
+						"query": "insert into vehicle.process_log(file_name) values ('test')"
 					},
 					"dataset": {
 						"referenceName": "Vehicle_Log_files",
 						"type": "DatasetReference"
-					}
+					},
+					"firstRowOnly": false
 				}
 			}
 		]
